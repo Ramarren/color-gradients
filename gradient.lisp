@@ -50,7 +50,7 @@
     data))
 
 (defun gradient-diag (w h x1 y1 x2 y2 col1 col2 dither)
-  (declare (inline cacl-col dist))
+  (declare (inline calc-col dist))
   (let ((data (make-array (list w h)))
 	(A (cond
 	     ((and (zerop x1)(zerop y1)) (/ y2 x2))
