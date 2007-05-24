@@ -12,15 +12,24 @@
     (sqrt (+ (* xd xd) (* yd yd)))))
 
 (defun calc-col (d1 d2 c1 c2)
-  (let ((d (+ d1 d2)))
-    (flet ((wav (a b)
-      (/ (+ (* a d1)(* b d2)) d))))
-      (declare (inline wav))
-      (mapcar #'wav c1 c2)))
+  (if (zerop d1) 
+    c1
+    (if (zerop d2) 
+      c2
+      (let ((d (+ d1 d2)))
+	(flet ((wav (a b)
+	  (/ (+ (* a d1)(* b d2)) d))))
+	  (declare (inline wav))
+	  (mapcar #'wav c1 c2)))))
       
 
-(defun gradient (w h x1 y1 x2 y2 c1 c2)
+(defun gradient-horiz (w h x1 x2 y c1 c2) )
+
+(defun gradient-verti (w h x y1 y2 c1 c2) )
+
+(defun gradient-diag (w h x1 y1 x2 y2 c1 c2)
   (declare (inline cacl-col dist))
+  (if (and (= x1 x2)(= y1 y2)) (error "Gradient points must be different"))
   (let ((data (make-array (list w h)))
 	(A (/ (- y1 y2)(- (* y2 x1)(* x2 y1))))
 	(B (/ (- x2 x1)(- (* y2 x1)(* x2 y1)))))
@@ -38,6 +47,8 @@
 				      (dist i j (* C1 (- V1 C2)) (- (* C3+ V1) C5))
 				      (dist i j (* C1 (- V1 C4)) (- (* C3+ V1) C6))
 				      c1 c2)))))))))
+
+(defun gradient (w h x1 y1 x2 y2 c1 c2) )
 
 (defun plot-gradient (bitmap gdata)
   (dotimes (i (array-dimension gdata 0))
