@@ -69,7 +69,6 @@
       (let ((C3+ (1+ C3))
 	    (C5 (* C3 C2))
 	    (C6 (* C3 C4)))
-	(format t "~a ~a ~a ~a ~a ~a ~a ~a~&" A B C1 C2 C3 C4 C5 C6)
 	(dotimes (i w)
 	  (dotimes (j h)
 	    (let ((V1 (+ (* (/ A B) i) j)))
