@@ -30,7 +30,7 @@
 
 (defun make-linear-gradient (point-1 point-2
 			     &key (color-1 '(0 0 0 255)) (color-2 '(255 255 255 255))
-			          (steps 500) (table nil) (fixnum-xy nil))
+			          (steps 500) (table nil) (fixnum-xy nil) (repeat :pad))
   (destructuring-bind (x1 y1) point-1
     (destructuring-bind (x2 y2) point-2
       (cond
@@ -39,14 +39,17 @@
 	 (error "Points defining a gradient must be different."))
 	((= x1 x2)
 	 (make-linear-vertical-gradient point-1 point-2
-					:color-1 color-1 :color-2 color-2 :steps steps :table table))
+					:color-1 color-1 :color-2 color-2 :steps steps
+					:table table :repeat repeat))
 	((= y1 y2)
 	 (make-linear-horizontal-gradient point-1 point-2
-					  :color-1 color-1 :color-2 color-2 :steps steps :table table))
+					  :color-1 color-1 :color-2 color-2 :steps steps
+					  :table table :repeat repeat))
 	(t (make-linear-general-gradient point-1 point-2
-					  :color-1 color-1 :color-2 color-2 :steps steps :table table :fixnum-xy fixnum-xy))))))
+					  :color-1 color-1 :color-2 color-2 :steps steps
+					  :table table :fixnum-xy fixnum-xy :repeat repeat))))))
 
-(defun make-linear-vertical-gradient (point-1 point-2 &key color-1 color-2 steps table)
+(defun make-linear-vertical-gradient (point-1 point-2 &key color-1 color-2 steps table repeat)
   (let ((color-table (if table
 			 table
 			 (precompute-color-table color-1 color-2 steps))))
@@ -60,12 +63,22 @@
 		     (declare (ignore x))
 		     (let ((d1 (abs (- y y1)))
 			   (d2 (abs (- y y2))))
-		       (cond ((> d1 d) (aref color-table last-step))
-			     ((> d2 d) (aref color-table 0))
-			     (t (aref color-table (round (* last-step (/ d1 d))))))))
+		       (ecase repeat
+			 (:pad
+			  (cond ((> d1 d) (aref color-table last-step))
+				((> d2 d) (aref color-table 0))
+				(t (aref color-table (round (* last-step (/ d1 d)))))))
+			 (:repeat
+			  (aref color-table (mod (round (* last-step (/ d1 d))) (1+ last-step))))
+			 (:reflect
+			  (aref color-table
+				(let ((reflect-index (mod (round (* last-step (/ d1 d))) (* 2 (1+ last-step)))))
+				  (if (> reflect-index last-step)
+				      (- (* 2 last-step) reflect-index)
+				      reflect-index)))))))
 		 color-table))))))
 
-(defun make-linear-horizontal-gradient (point-1 point-2 &key color-1 color-2 steps table)
+(defun make-linear-horizontal-gradient (point-1 point-2 &key color-1 color-2 steps table repeat)
   (let ((color-table (if table
 			 table
 			 (precompute-color-table color-1 color-2 steps))))
@@ -79,12 +92,22 @@
 		     (declare (ignore y))
 		     (let ((d1 (abs (- x x1)))
 			   (d2 (abs (- x x2))))
-		       (cond ((> d1 d) (aref color-table last-step))
-			     ((> d2 d) (aref color-table 0))
-			     (t (aref color-table (round (* last-step (/ d1 d))))))))
+		       (ecase repeat
+			 (:pad
+			  (cond ((> d1 d) (aref color-table last-step))
+				((> d2 d) (aref color-table 0))
+				(t (aref color-table (round (* last-step (/ d1 d)))))))
+			 (:repeat
+			  (aref color-table (mod (round (* last-step (/ d1 d))) (1+ last-step))))
+			 (:reflect
+			  (aref color-table
+				(let ((reflect-index (mod (round (* last-step (/ d1 d))) (* 2 (1+ last-step)))))
+				  (if (> reflect-index last-step)
+				      (- (* 2 last-step) reflect-index)
+				      reflect-index)))))))
 		 color-table))))))
 
-(defun make-linear-general-gradient (point-1 point-2 &key color-1 color-2 steps table fixnum-xy)
+(defun make-linear-general-gradient (point-1 point-2 &key color-1 color-2 steps table fixnum-xy repeat)
   (let ((color-table (if table
 			 table
 			 (precompute-color-table color-1 color-2 steps))))
@@ -126,23 +149,43 @@
 			  (declare (optimize (speed 3)))
 			  (let ((d1 (odist x y (* C1 (- V1 C2)) (- (* C3+ V1) C5)))
 				(d2 (odist x y (* C1 (- V1 C4)) (- (* C3+ V1) C6))))
-			    (cond ((> d1 d) (aref color-table last-step))
-				  ((> d2 d) (aref color-table 0))
-				  (t (aref color-table (round (* last-step (/ d1 d))))))))))
+			    (ecase repeat
+			      (:pad
+			       (cond ((> d1 d) (aref color-table last-step))
+				     ((> d2 d) (aref color-table 0))
+				     (t (aref color-table (round (* last-step (/ d1 d)))))))
+			      (:repeat
+			       (aref color-table (mod (round (* last-step (/ d1 d))) (1+ last-step))))
+			      (:reflect
+			       (aref color-table
+				     (let ((reflect-index (mod (round (* last-step (/ d1 d))) (* 2 (1+ last-step)))))
+				       (if (> reflect-index last-step)
+					   (- (* 2 last-step) reflect-index)
+					   reflect-index)))))))))
 		   #'(lambda (x y)
 		       (declare (inline dist))
 		       (let ((V1 (coerce (+ (* AB x) y) 'single-float)))
 			 (declare (optimize (speed 3)))
 			 (let ((d1 (dist x y (* C1 (- V1 C2)) (- (* C3+ V1) C5)))
 			       (d2 (dist x y (* C1 (- V1 C4)) (- (* C3+ V1) C6))))
-			   (cond ((> d1 d) (aref color-table last-step))
-				 ((> d2 d) (aref color-table 0))
-				 (t (aref color-table (round (* last-step (/ d1 d))))))))))
+			   (ecase repeat
+			     (:pad
+			      (cond ((> d1 d) (aref color-table last-step))
+				    ((> d2 d) (aref color-table 0))
+				    (t (aref color-table (round (* last-step (/ d1 d)))))))
+			     (:repeat
+			      (aref color-table (mod (round (* last-step (/ d1 d))) (1+ last-step))))
+			     (:reflect
+			      (aref color-table
+				    (let ((reflect-index (mod (round (* last-step (/ d1 d))) (* 2 (1+ last-step)))))
+				      (if (> reflect-index last-step)
+					  (- (* 2 last-step) reflect-index)
+					  reflect-index)))))))))
 	       color-table))))))))
 
 (defun make-radial-gradient (circle-1 circle-2
 			     &key (color-1 '(0 0 0 255)) (color-2 '(255 255 255 255))
-			          (steps 500) (table nil) (fixnum-xy nil))
+			          (steps 500) (table nil) (fixnum-xy nil) (repeat :pad))
   (declare (ignore fixnum-xy))
   (let ((color-table (if table
 			 table
@@ -164,7 +207,17 @@
 		      (let ((d (if (not (minusp delta))
 				   (/ (- (- B) (sqrt delta)) (* 2 A))
 				   0)))
-			(cond ((> d 1) (aref color-table last-step))
-			      ((< d 0) (aref color-table 0))
-			      (t (aref color-table (round (* last-step d))))))))))
+			(ecase repeat
+			  (:pad
+			   (cond ((> d 1) (aref color-table last-step))
+				 ((< d 0) (aref color-table 0))
+				 (t (aref color-table (round (* last-step d))))))
+			  (:repeat
+			   (aref color-table (mod (round (* last-step d)) (1+ last-step))))
+			  (:reflect
+			   (aref color-table
+				 (let ((reflect-index (mod (round (* last-step d)) (1+ (* 2 last-step)))))
+				   (if (> reflect-index last-step)
+				       (1- (- (* 2 (1+ last-step)) reflect-index))
+				       reflect-index))))))))))
 	    color-table)))))))
