@@ -14,3 +14,4 @@ The arguments for make-linear-gradient:
  color-1 color-2 are lists of color components of form (R G B) or (R G B A), opaque black is default for color-1, opaque white for color-2, if no alpha is provided it defaults to 255
  steps is a number of steps in precomputed color table
  table is an array of lists of colors, if this argument is provided color-1, color-2 and steps are ignored and table is use used as a precomputed color table. This allows sharing tables between gradients by capturing second return value and using arbitrary gradients.
+ fixnum-xy if not null, a closure is generated which arguments are declared to be fixnums
