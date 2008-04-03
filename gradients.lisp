@@ -1,9 +1,3 @@
-(let ((*default-pathname-defaults* (truename "sdlbind/")))
-  (require "sdlext" "sdlext"))
-
-(defpackage :gradients (:use :common-lisp :sdl)
-  (:export gradient plot-gradient))
-
 (in-package :gradients)
 
 (defun dist (x1 y1 x2 y2)
