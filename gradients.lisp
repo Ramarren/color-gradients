@@ -23,10 +23,10 @@
        (destructuring-bind (r2 g2 b2 a2) (ensure-rgba color2)
 	 (dotimes (k steps color-table)
 	   (let ((frac (/ k steps)))
-	     (setf (aref color-table k) (list (wav r1 r2 frac)
-					      (wav g1 g2 frac)
-					      (wav b1 b2 frac)
-					      (wav a1 a2 frac))))))))))
+	     (setf (aref color-table k) (list (wav r2 r1 frac)
+					      (wav g2 g1 frac)
+					      (wav b2 b1 frac)
+					      (wav a2 a1 frac))))))))))
 
 (defun make-linear-gradient (point-1 point-2
 			     &key (color-1 '(0 0 0 255)) (color-2 '(255 255 255 255))
