@@ -1,1 +1,16 @@
-A simple color gradient generation library for Common Lisp.
+A simple color gradient generation library for Common Lisp. This computes only two stop non-repeating linear gradients for the moments.
+
+Usage:
+make-linear-gradient (point-1 point-2
+		      &key (color-1 '(0 0 0 255)) (color-2 '(255 255 255 255))
+			   (steps 500) (table nil) (fixnum-xy nil))
+
+This returns two values. A primary values is a closure of two arguments, coordinates in a gradient space returning a list of RGBA components of a color, as integers in 0-255 range. Returned lists are shared, and so should not be modified.
+
+The second value is a color table, to allow reuse of precomputed color tables for gradients.
+
+The arguments for make-linear-gradient:
+ point-1 point-2 are conses of coordinates of points delimiting a gradient
+ color-1 color-2 are lists of color components of form (R G B) or (R G B A), opaque black is default for color-1, opaque white for color-2, if no alpha is provided it defaults to 255
+ steps is a number of steps in precomputed color table
+ table is an array of lists of colors, if this argument is provided color-1, color-2 and steps are ignored and table is use used as a precomputed color table. This allows sharing tables between gradients by capturing second return value and using arbitrary gradients.
