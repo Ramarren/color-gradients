@@ -1,4 +1,4 @@
-A simple color gradient generation library for Common Lisp. It computes linear of radial gradients. Only simple color progression is availible for default, but arbitrary ones can be plugged in easily.
+A simple color gradient generation library for Common Lisp. It computes linear of radial gradients. Only simple color progression is available for default, but arbitrary ones can be plugged in easily.
 
 Usage:
 make-linear-gradient (point-1 point-2
