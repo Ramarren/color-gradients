@@ -110,6 +110,7 @@
 	    (let ((C3+ (coerce (1+ C3) 'single-float))
 		  (C5 (coerce (* C3 C2) 'single-float))
 		  (C6 (coerce (* C3 C4) 'single-float)))
+	      (declare (sb-ext:muffle-conditions sb-ext:compiler-note))
 	      (values
 	       (if fixnum-xy
 		   (flet ((odist (fx fy sx sy)
