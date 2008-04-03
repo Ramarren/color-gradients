@@ -3,7 +3,7 @@
 (defun dist (x1 y1 x2 y2)
   (let ((xd (- x2 x1))
 	(yd (- y2 y1)))
-    (sqrt (+ (* xd xd) (* yd yd)))))
+    (sqrt (coerce (+ (* xd xd) (* yd yd)) 'single-float))))
 
 (defun ensure-rgba (color)
   (destructuring-bind (r g b . pa) color
@@ -30,7 +30,7 @@
 
 (defun make-linear-gradient (point-1 point-2
 			     &key (color-1 '(0 0 0 255)) (color-2 '(255 255 255 255))
-			          (steps 500) (table nil))
+			          (steps 500) (table nil) (fixnum-xy nil))
   (destructuring-bind (x1 y1) point-1
     (destructuring-bind (x2 y2) point-2
       (cond
@@ -43,8 +43,8 @@
 	((= y1 y2)
 	 (make-linear-horizontal-gradient point-1 point-2
 					  :color-1 color-1 :color-2 color-2 :steps steps :table table))
-	(t (make-linear-general-griadient point-1 point-2
-					  :color-1 color-1 :color-2 color-2 :steps steps :table table))))))
+	(t (make-linear-general-gradient point-1 point-2
+					  :color-1 color-1 :color-2 color-2 :steps steps :table table :fixnum-xy fixnum-xy))))))
 
 (defun make-linear-vertical-gradient (point-1 point-2 &key color-1 color-2 steps table)
   (let ((color-table (if table
@@ -84,7 +84,7 @@
 			     (t (aref color-table (round (* last-step (/ d1 d))))))))
 		 color-table))))))
 
-(defun make-linear-general-griadient (point-1 point-2 &key color-1 color-2 steps table)
+(defun make-linear-general-griadent (point-1 point-2 &key color-1 color-2 steps table)
   (let ((color-table (if table
 			 table
 			 (precompute-color-table color-1 color-2 steps))))
@@ -102,17 +102,19 @@
 		   (t (/ (- x2 x1)(- (* y2 x1)(* x2 y1))))))
 	      (d (dist x1 y1 x2 y2))
 	      (last-step (1- (array-dimension color-table 0))))
-	  (let ((AB (/ A B))
-		(C1 (/ (* A B) (+ (* A A) (* B B))))
-		(C2 (- y1 (* (/ B A) x1)))
-		(C4 (- y2 (* (/ B A) x2)))
+	  (let ((AB (coerce (/ A B) 'single-float))
+		(C1 (coerce (/ (* A B) (+ (* A A) (* B B))) 'single-float))
+		(C2 (coerce (- y1 (* (/ B A) x1)) 'single-float))
+		(C4 (coerce (- y2 (* (/ B A) x2)) 'single-float))
 		(C3 (- (/ (* A A) (+ (* A A)(* B B))))))
-	    (let ((C3+ (1+ C3))
-		  (C5 (* C3 C2))
-		  (C6 (* C3 C4)))
+	    (let ((C3+ (coerce (1+ C3) 'single-float))
+		  (C5 (coerce (* C3 C2) 'single-float))
+		  (C6 (coerce (* C3 C4) 'single-float)))
 	      (values
 	       #'(lambda (x y)
-		   (let ((V1 (+ (* AB x) y)))
+		   (declare (inline dist))
+		   (let ((V1 (coerce (+ (* AB x) y) 'single-float)))
+		     (declare (optimize (speed 3)))
 		     (let ((d1 (dist x y (* C1 (- V1 C2)) (- (* C3+ V1) C5)))
 			   (d2 (dist x y (* C1 (- V1 C4)) (- (* C3+ V1) C6))))
 		       (cond ((> d1 d) (aref color-table last-step))
