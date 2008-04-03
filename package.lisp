@@ -1,2 +1,2 @@
-(defpackage :gradients (:use :common-lisp :iterate)
-  (:export make-gradient))
+(defpackage :gradients (:use :common-lisp)
+  (:export make-linear-gradient))
