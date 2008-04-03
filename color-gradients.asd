@@ -1,4 +1,4 @@
-(asdf:defsystem gradients
+(asdf:defsystem color-gradients
   :version "0"
   :description "Color gradients"
   :author "Ramarren"

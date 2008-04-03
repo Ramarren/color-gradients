@@ -1,4 +1,4 @@
-(in-package :gradients)
+(in-package :color-gradients)
 
 (defun dist (x1 y1 x2 y2)
   (let ((xd (- x2 x1))
