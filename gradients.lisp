@@ -5,21 +5,6 @@
 	(yd (- y2 y1)))
     (sqrt (+ (* xd xd) (* yd yd)))))
 
-(defun gen-calc-col (d c1 c2 dither)
-  (flet ((wav (a b d1 d2)
-	   (/ (+ (* a d1)(* b d2)) d))
-	 (wav-dither (a b d1 d2)
-	   (+ (/ (+ (* a d1)(* b d2)) d) (- (random dither) (/ dither 2)))))
-    (let ((wavf (if (zerop dither) #'wav #'wav-dither)))
-     #'(lambda (d1 d2)
-	 (declare (inline wav wav-dither))
-	 (if (> d1 d)
-	   c2
-	   (if (> d2 d)
-	     c1
-	     (mapcar #'(lambda (x y) (max 0 (min (round (funcall wavf x y d1 d2)) 255)))
-		     c2 c1)))))))
-
 (defun ensure-rgba (color)
   (destructuring-bind (r g b . pa) color
     (check-type r (integer 0 255))
@@ -117,7 +102,8 @@
 			(and (zerop x2)(zerop y2))) -1)
 		   ((and (not (zerop y2))(not (zerop x2))(= (/ y1 y2)(/ x1 x2))) -1)
 		   (t (/ (- x2 x1)(- (* y2 x1)(* x2 y1))))))
-	      (d (dist x1 y1 x2 y2)))
+	      (d (dist x1 y1 x2 y2))
+	      (last-step (1- (array-dimension color-table 0))))
 	  (let ((AB (/ A B))
 		(C1 (/ (* A B) (+ (* A A) (* B B))))
 		(C2 (- y1 (* (/ B A) x1)))
@@ -129,8 +115,8 @@
 	      (values
 	       #'(lambda (x y)
 		   (let ((V1 (+ (* AB x) y)))
-		     (let ((d1 (dist i j (* C1 (- V1 C2)) (- (* C3+ V1) C5)))
-			   (d2 (dist i j (* C1 (- V1 C4)) (- (* C3+ V1) C6))))
+		     (let ((d1 (dist x y (* C1 (- V1 C2)) (- (* C3+ V1) C5)))
+			   (d2 (dist x y (* C1 (- V1 C4)) (- (* C3+ V1) C6))))
 		       (cond ((> d1 d) (aref color-table last-step))
 			     ((> d2 d) (aref color-table 0))
 			     (t (aref color-table (round (* last-step (/ d1 d)))))))))
