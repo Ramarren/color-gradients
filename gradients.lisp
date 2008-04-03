@@ -60,10 +60,9 @@
 		     (declare (ignore x))
 		     (let ((d1 (abs (- y y1)))
 			   (d2 (abs (- y y2))))
-		      (aref color-table
-			    (cond ((> d1 d) (aref color-table last-step))
-				  ((> d2 d) (aref color-table 0))
-				  (t (aref color-table (round (* last-step (/ d1 d)))))))))
+		       (cond ((> d1 d) (aref color-table last-step))
+			     ((> d2 d) (aref color-table 0))
+			     (t (aref color-table (round (* last-step (/ d1 d))))))))
 		 color-table))))))
 
 (defun make-linear-horizontal-gradient (point-1 point-2 &key color-1 color-2 steps table)
@@ -80,10 +79,9 @@
 		     (declare (ignore y))
 		     (let ((d1 (abs (- x x1)))
 			   (d2 (abs (- x x2))))
-		      (aref color-table
-			    (cond ((> d1 d) (aref color-table last-step))
-				  ((> d2 d) (aref color-table 0))
-				  (t (aref color-table (round (* last-step (/ d1 d)))))))))
+		       (cond ((> d1 d) (aref color-table last-step))
+			     ((> d2 d) (aref color-table 0))
+			     (t (aref color-table (round (* last-step (/ d1 d))))))))
 		 color-table))))))
 
 (defun make-linear-general-griadient (point-1 point-2 &key color-1 color-2 steps table)
