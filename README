@@ -1,4 +1,4 @@
-A simple color gradient generation library for Common Lisp. This computes only two stop non-repeating linear gradients for the moments.
+A simple color gradient generation library for Common Lisp. This computes radial or linear gradient, although no repeating is availible yet, and multistop color progression has to be constructed manually.
 
 Usage:
 make-linear-gradient (point-1 point-2
@@ -10,8 +10,10 @@ This returns two values. A primary values is a closure of two arguments, coordin
 The second value is a color table, to allow reuse of precomputed color tables for gradients.
 
 The arguments for make-linear-gradient:
- point-1 point-2 are conses of coordinates of points delimiting a gradient
+ point-1 point-2 are lists of two coordinates of points delimiting a gradient
  color-1 color-2 are lists of color components of form (R G B) or (R G B A), opaque black is default for color-1, opaque white for color-2, if no alpha is provided it defaults to 255
  steps is a number of steps in precomputed color table
- table is an array of lists of colors, if this argument is provided color-1, color-2 and steps are ignored and table is use used as a precomputed color table. This allows sharing tables between gradients by capturing second return value and using arbitrary gradients.
+ table is an array of lists of colors, if this argument is provided color-1, color-2 and steps are ignored and table is use used as a precomputed color table. This allows sharing tables between gradients by capturing second return value and using arbitrary color progressions.
  fixnum-xy if not null, a closure is generated which arguments are declared to be fixnums
+
+make-radial-gradient is similar, except is takes circle-1 and circle-2 instead of points, which are lists of form (x y radius) defining the circles. circle-1 should be entirely contained inside circle-2, but this is not checked. fixnum-xy is ignored, other arguments are identical
