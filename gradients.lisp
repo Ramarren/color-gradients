@@ -72,7 +72,7 @@
 			  (aref color-table (mod (round (* last-step (/ d1 d))) (1+ last-step))))
 			 (:reflect
 			  (aref color-table
-				(let ((reflect-index (mod (round (* last-step (/ d1 d))) (* 2 (1+ last-step)))))
+				(let ((reflect-index (mod (round (* last-step (/ d1 d))) (1+ (* 2 last-step)))))
 				  (if (> reflect-index last-step)
 				      (- (* 2 last-step) reflect-index)
 				      reflect-index)))))))
@@ -101,7 +101,7 @@
 			  (aref color-table (mod (round (* last-step (/ d1 d))) (1+ last-step))))
 			 (:reflect
 			  (aref color-table
-				(let ((reflect-index (mod (round (* last-step (/ d1 d))) (* 2 (1+ last-step)))))
+				(let ((reflect-index (mod (round (* last-step (/ d1 d))) (1+ (* 2 last-step)))))
 				  (if (> reflect-index last-step)
 				      (- (* 2 last-step) reflect-index)
 				      reflect-index)))))))
@@ -158,7 +158,7 @@
 			       (aref color-table (mod (round (* last-step (/ d1 d))) (1+ last-step))))
 			      (:reflect
 			       (aref color-table
-				     (let ((reflect-index (mod (round (* last-step (/ d1 d))) (* 2 (1+ last-step)))))
+				     (let ((reflect-index (mod (round (* last-step (/ d1 d))) (1+ (* 2 last-step)))))
 				       (if (> reflect-index last-step)
 					   (- (* 2 last-step) reflect-index)
 					   reflect-index)))))))))
@@ -177,7 +177,7 @@
 			      (aref color-table (mod (round (* last-step (/ d1 d))) (1+ last-step))))
 			     (:reflect
 			      (aref color-table
-				    (let ((reflect-index (mod (round (* last-step (/ d1 d))) (* 2 (1+ last-step)))))
+				    (let ((reflect-index (mod (round (* last-step (/ d1 d))) (1+ (* 2 last-step)))))
 				      (if (> reflect-index last-step)
 					  (- (* 2 last-step) reflect-index)
 					  reflect-index)))))))))
