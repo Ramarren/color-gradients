@@ -139,3 +139,32 @@
 				 ((> d2 d) (aref color-table 0))
 				 (t (aref color-table (round (* last-step (/ d1 d))))))))))
 	       color-table))))))))
+
+(defun make-radial-gradient (circle-1 circle-2
+			     &key (color-1 '(0 0 0 255)) (color-2 '(255 255 255 255))
+			          (steps 500) (table nil) (fixnum-xy nil))
+  (declare (ignore fixnum-xy))
+  (let ((color-table (if table
+			 table
+			 (precompute-color-table color-1 color-2 steps))))
+   (destructuring-bind (x1 y1 r1) circle-1
+     (destructuring-bind (x2 y2 r2) circle-2
+       (let ((last-step (1- (array-dimension color-table 0)))
+	     (cdx (- x2 x1))
+	     (cdy (- y2 y1))
+	     (dr (- r2 r1)))
+	 (let ((A (+ (* cdx cdx) (* cdy cdy) (- (* dr dr)))))
+	   (values
+	    #'(lambda (x y)
+		(let ((pdx (- x x1))
+		      (pdy (- y y1)))
+		  (let ((B (* -2 (+ (* pdx cdx) (* pdy cdy) (* r1 dr))))
+			(C (+ (* pdx pdx) (* pdy pdy) (- (* r1 r1)))))
+		    (let ((delta (- (* B B) (* 4 A C))))
+		      (let ((d (if (not (minusp delta))
+				   (/ (- (- B) (sqrt delta)) (* 2 A))
+				   0)))
+			(cond ((> d 1) (aref color-table last-step))
+			      ((< d 0) (aref color-table 0))
+			      (t (aref color-table (round (* last-step d))))))))))
+	    color-table)))))))
