@@ -245,7 +245,7 @@
 					       (* b (expt (sin (/ (* pi x) 2)) 2))))
 					c1 c2))))))
        (dotimes (k steps color-table)
-	 (let ((x (/ k steps)))
+	 (let ((x (/ k (1- steps))))
 	  (loop while (> x (car next-stop)) do
 	    (setf prev-stop next-stop
 		  next-stop (if remaining-stops
