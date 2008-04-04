@@ -5,15 +5,30 @@
 	(yd (- y2 y1)))
     (sqrt (coerce (+ (* xd xd) (* yd yd)) 'single-float))))
 
+(defun colorp (potential-color)
+  (and (listp potential-color)
+       (<= 3 (length potential-color) 4)
+       (every #'(lambda (c)
+		  (typep c '(integer 0 255)))
+	      potential-color)))
+
+(define-condition not-a-color ()
+    ((not-color :initarg :not-color :accessor not-color))
+  (:report (lambda (c stream)
+	       (format stream "~a is not a proper color." (not-color c)))))
+
 (defun ensure-rgba (color)
-  (destructuring-bind (r g b . pa) color
-    (check-type r (integer 0 255))
-    (check-type g (integer 0 255))
-    (check-type b (integer 0 255))
-    (if (and (consp pa)
-	     (typep (car pa) '(integer 0 255)))
-	color
-	(list r g b 255))))
+  (restart-case
+      (progn (unless (colorp color) (error 'not-a-color :not-color color))
+	     (destructuring-bind (r g b . pa) color
+	       (if (and (consp pa)
+			(typep (car pa) '(integer 0 255)))
+		   color
+		   (list r g b 255))))
+    (use-value (new-color) :interactive (lambda ()
+					  (format *query-io* "Input new color:")
+					  (list (read *query-io*)))
+      (ensure-rgba new-color))))
 
 (defun precompute-color-table (color1 color2 steps)
   (let ((color-table (make-array steps :element-type 'list)))
