@@ -1,5 +1,7 @@
 (in-package :color-gradients)
 
+(defparameter *steps-per-stop* 200 "Default number of steps in precomputed color table per color stop.")
+
 (defun dist (x1 y1 x2 y2)
   (let ((xd (- x2 x1))
 	(yd (- y2 y1)))
@@ -45,7 +47,7 @@
 
 (defun make-linear-gradient (point-1 point-2
 			     &key (color-1 '(0 0 0 255)) (color-2 '(255 255 255 255))
-			          (steps 500) (table nil) (fixnum-xy nil) (repeat :pad))
+			          (steps (* 2 *steps-per-stop*)) (table nil) (fixnum-xy nil) (repeat :pad))
   (destructuring-bind (x1 y1) point-1
     (destructuring-bind (x2 y2) point-2
       (cond
@@ -200,7 +202,7 @@
 
 (defun make-radial-gradient (circle-1 circle-2
 			     &key (color-1 '(0 0 0 255)) (color-2 '(255 255 255 255))
-			          (steps 500) (table nil) (fixnum-xy nil) (repeat :pad))
+			          (steps (* 2 *steps-per-stop*)) (table nil) (fixnum-xy nil) (repeat :pad))
   (declare (ignore fixnum-xy))
   (let ((color-table (if table
 			 table
@@ -220,7 +222,10 @@
 			(C (+ (* pdx pdx) (* pdy pdy) (- (* r1 r1)))))
 		    (let ((delta (- (* B B) (* 4 A C))))
 		      (let ((d (if (not (minusp delta))
-				   (/ (- (- B) (sqrt delta)) (* 2 A))
+				   (let ((x1 (/ (- (- B) (sqrt delta)) (* 2 A))))
+				     (if (not (minusp x1))
+					 x1
+					 (/ (+ (- B) (sqrt delta)) (* 2 A))))
 				   0)))
 			(ecase repeat
 			  (:pad
@@ -239,7 +244,7 @@
 
 (defun make-multistop-table (stops &key (steps nil) (interpolation :linear))
   (assert (>= (length stops) 2))
-  (let ((steps (if steps steps (* 200 (length stops))))
+  (let ((steps (if steps steps (* *steps-per-stop* (length stops))))
 	(stops (sort (mapcar #'(lambda (stop)
 				 (assert (<= 0 (car stop) 1))
 				 (cons (car stop) (ensure-rgba (cdr stop))))
@@ -260,7 +265,7 @@
 					       (* b (expt (sin (/ (* pi x) 2)) 2))))
 					c1 c2))))))
        (dotimes (k steps color-table)
-	 (let ((x (/ k steps)))
+	 (let ((x (/ k (1- steps))))
 	  (loop while (> x (car next-stop)) do
 	    (setf prev-stop next-stop
 		  next-stop (if remaining-stops

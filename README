@@ -1,9 +1,12 @@
 A simple color gradient generation library for Common Lisp. It computes linear of radial gradients. Multistop color progression using linear or sin^2 interpolation is available.
 
 Usage:
+
+*steps-per-stop* controls a default number of steps in color interpolation table per color stop
+
 make-linear-gradient (point-1 point-2
 		      &key (color-1 '(0 0 0 255)) (color-2 '(255 255 255 255))
-			   (steps 500) (table nil) (fixnum-xy nil) (repeat :pad))
+			   (steps (* 2 *steps-per-stop*)) (table nil) (fixnum-xy nil) (repeat :pad))
 
 This returns two values. A primary values is a closure of two arguments, coordinates in a gradient space returning a list of RGBA components of a color, as integers in 0-255 range. Returned lists are shared, and so should not be modified.
 
@@ -21,7 +24,7 @@ make-radial-gradient is similar, except is takes circle-1 and circle-2 instead o
 
 make-multistop-table (stops &key (steps nil) (interpolation :linear))
 stops is a list of lists of four or five elements, first marking a stop position between 0 and 1, and the rest specify color components as above, there have to be at least two stops, but they do not have to be in order
-steps specify the size of color table, if not provided 200 times the number of steps is assumed
+steps specify the size of color table, if not provided it is *steps-per-stop* times the number of steps is assumed
 interpolation is one of :linear :sin2, specify color interpolation between stops
 
 this table can be used by :table argument to make-*-gradient functions, see above
