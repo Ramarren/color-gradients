@@ -207,7 +207,10 @@
 			(C (+ (* pdx pdx) (* pdy pdy) (- (* r1 r1)))))
 		    (let ((delta (- (* B B) (* 4 A C))))
 		      (let ((d (if (not (minusp delta))
-				   (/ (- (- B) (sqrt delta)) (* 2 A))
+				   (let ((x1 (/ (- (- B) (sqrt delta)) (* 2 A))))
+				     (if (not (minusp x1))
+					 x1
+					 (/ (+ (- B) (sqrt delta)) (* 2 A))))
 				   0)))
 			(ecase repeat
 			  (:pad
