@@ -227,6 +227,36 @@
 				       reflect-index))))))))))
 	    color-table)))))))
 
+(defun make-angular-gradient (centerpoint start-angle end-angle
+			     &key (color-1 '(0 0 0 255)) (color-2 '(255 255 255 255))
+			          (steps (* 2 *steps-per-stop*)) (table nil) (repeat :pad))
+  (let ((color-table (if table
+			 table
+			 (precompute-color-table color-1 color-2 steps))))
+    (destructuring-bind (cx cy) centerpoint
+      (let ((angle-span (abs (- end-angle start-angle)))
+	    (last-step (1- (array-dimension color-table 0))))
+       (values
+	#'(lambda (x y)
+	    (let ((dx (- x cx))
+		  (dy (- y cy)))
+	      (let ((angle (atan dy dx)))
+		(let ((d (/ (- angle start-angle) angle-span)))
+		  (ecase repeat
+		    (:pad
+		     (cond ((> d 1) (aref color-table last-step))
+			   ((< d 0) (aref color-table 0))
+			   (t (aref color-table (round (* last-step d))))))
+		    (:repeat
+		     (aref color-table (mod (round (* last-step d)) (1+ last-step))))
+		    (:reflect
+		     (aref color-table
+			   (let ((reflect-index (mod (round (* last-step d)) (1+ (* 2 last-step)))))
+			     (if (> reflect-index last-step)
+				 (1- (- (* 2 (1+ last-step)) reflect-index))
+				 reflect-index)))))))))
+	color-table)))))
+
 (defun make-multistop-table (stops &key (steps nil) (interpolation :linear))
   (assert (>= (length stops) 2))
   (let ((steps (if steps steps (* *steps-per-stop* (length stops))))

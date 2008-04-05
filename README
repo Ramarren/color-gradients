@@ -22,6 +22,8 @@ The arguments for make-linear-gradient:
 
 make-radial-gradient is similar, except is takes circle-1 and circle-2 instead of points, which are lists of form (x y radius) defining the circles. circle-1 should be entirely contained inside circle-2, but this is not checked. fixnum-xy is ignored, other arguments are identical
 
+make-angular-gradient is also similar, but has three non-optional arguments: center point, start angle and end angle
+
 make-multistop-table (stops &key (steps nil) (interpolation :linear))
 stops is a list of lists of four or five elements, first marking a stop position between 0 and 1, and the rest specify color components as above, there have to be at least two stops, but they do not have to be in order
 steps specify the size of color table, if not provided it is *steps-per-stop* times the number of steps is assumed
